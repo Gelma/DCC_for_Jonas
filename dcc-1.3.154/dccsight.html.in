@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+    <TITLE>dccsight.8</TITLE>
+    <META HTTP-EQUIV="Content-Style-Type" content="text/css">
+    <STYLE type="text/css">
+	BODY {background-color:white; color:black}
+	ADDRESS {font-size:smaller}
+        IMG.logo {width:6em; vertical-align:middle}
+    </STYLE>
+</HEAD>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+<B><A HREF="dccsight.html">dccsight(8)</A></B>           Distributed Checksum Clearinghouse           <B><A HREF="dccsight.html">dccsight(8)</A></B>
+
+
+</PRE>
+<H2><A NAME="NAME">NAME</A></H2><PRE>
+     <B>dccsight</B> -- Distributed Checksum Clearinghouse raw checksum interface
+
+
+</PRE>
+<H2><A NAME="SYNOPSIS">SYNOPSIS</A></H2><PRE>
+     <B>dccsight</B> [<B>-VdPQC</B>] [<B>-h</B> <I>homedir</I>] [<B>-m</B> <I>map</I>] [<B>-w</B> <I>whiteclnt</I>] [<B>-t</B> <I>targets</I>]
+              [<B>-i</B> <I>infile</I>] [<B>-L</B> <I>ltype,facility.level</I>]
+
+
+</PRE>
+<H2><A NAME="DESCRIPTION">DESCRIPTION</A></H2><PRE>
+     <B>Dccsight</B> reads one or more lines containing DCC checksums, reports them
+     to a DCC server, and writes a X-DCC header line.  It can be used to
+     report checksums obtained from <B><A HREF="dccproc.html">dccproc(8)</A></B> using <B>-C</B>.
+
+   <A NAME="OPTIONS"><B>OPTIONS</B></A>
+     The following options are available:
+
+     <A NAME="OPTION-V"><B>-V</B></A>   displays the version of the DCC raw checksum interface.  Two or more
+          <B>-V</B> options show the options with which it was built.
+
+     <A NAME="OPTION-d"><B>-d</B></A>   enables debugging output from the DCC client software.  Additional
+          <B>-d</B> options increase the number of messages.
+
+     <A NAME="OPTION-P"><B>-P</B></A>   The SpamAsassin DCC.pm plugin should watch for "bulk" in X-DCC SMTP
+          header fields, but historically has looked for counts of "many".
+          However, there are situations when <B>dccsight</B> knows that a mail mes-
+          sage is extremely bulky and probably spam.  For example, mail from a
+          sender that is blacklisted in <I>whiteclnt</I> gets an X-DCC header that
+          includes <I>bulk</I>.  To acommodate that bug in SpamAssassin, by default
+          whenever <B>dccsight</B> generates an X-DCC header containing "bulk", it
+          also forces the <I>Body</I> count to "many".  <B>-P</B> turns off that kludge and
+          the <I>Body</I> contains the count from the DCC server.
+
+     <A NAME="OPTION-Q"><B>-Q</B></A>   only queries the DCC server about the checksums of messages instead
+          of reporting.  This is useful when <B>dccsight</B> is used to filter mail
+          that has already been reported to a DCC server by another DCC
+          client.  No single mail message should be reported to a DCC server
+          more than once per recipient, because each report will increase the
+          apparent "bulkness" of the message.
+
+          It is better to use <I>MXDCC</I> lines in the global <I>@prefix@/whiteclnt</I>
+          file for your MX mail servers that use DCC than to use <B>-Q</B> with
+          <B>dccsight</B>.
+
+          Do not use <B>-Q</B> except on mail that you know has been reported to a
+          DCC server.  DCC depends on reports of all except known private mail
+          and works only because almost no DCC installations use <B>-Q</B>.
+
+     <A NAME="OPTION-C"><B>-C</B></A>   outputs the checksums for the message as well as the X-DCC header.
+
+     <A NAME="OPTION-h"><B>-h</B></A> <I>homedir</I>
+          overrides the default DCC home directory, <I>@prefix@</I>.
+
+     <A NAME="OPTION-m"><B>-m</B></A> <I>map</I>
+          specifies a name or path of the memory mapped parameter file instead
+          of the default <I>@prefix@/map</I> in the DCC home directory.  It should be
+          created with the <B><A HREF="cdcc.html">cdcc(8)</A></B> command.
+
+     <A NAME="OPTION-w"><B>-w</B></A> <I>whiteclnt</I>
+          specifies an optional file containing SMTP client IP addresses and
+          SMTP headers of mail that do not need X-DCC headers and whose check-
+          sums should not be reported to the DCC server.  It can also contain
+          checksums of spam.  If the pathname is not absolute, it is relative
+          to the DCC home directory.  Thus, individual users with private
+          whitelists usually specify them with absolute paths.  It is useful
+          to <I>include</I> a common or system-wide whitelist in private lists.
+
+          The format of the <B>dccsight</B> whiteclnt file is the same as the
+          <I>@prefix@/whitelist</I> file required by <B><A HREF="dbclean.html">dbclean(8)</A></B> and <B><A HREF="dccsight.html">dccsight(8)</A></B>.
+          Because this list is used frequently, a companion file is used.  It
+          has the same pathname but with an added suffix of <I>.dccw</I>.  After
+          being created empty, it will contain an automatic memory mapped hash
+          table of the main file.
+
+     <A NAME="OPTION-t"><B>-t</B></A> <I>targets</I>
+          specifies the number of addressees of the message if other than 1.
+          The string <I>many</I> instead of a number asserts that there were too many
+          addressees and that the message is unsolicited bulk email.
+
+     <A NAME="OPTION-i"><B>-i</B></A> <I>infile</I>
+          specifies an input file instead of standard input.  If not absolute,
+          the pathname is interpreted relative to the directory in which
+          <B>dccsight</B> was started.
+
+     <A NAME="OPTION-L"><B>-L</B></A> <I>ltype,facility.level</I>
+          specifies how messages should be logged.  <I>Ltype</I> must be <I>error</I>, <I>info</I>,
+          or <I>off</I> to indicate which of the two types of messages are being con-
+          trolled or to turn off all <B>syslog(3)</B> messages from <B>dccsight</B>.  <I>Level</I>
+          must be a <B>syslog(3)</B> level among <I>EMERG</I>, <I>ALERT</I>, <I>CRIT</I>, <I>ERR</I>, <I>WARNING</I>,
+          <I>NOTICE</I>, <I>INFO</I>, and <I>DEBUG</I>.  <I>Facility</I> must be among <I>AUTH</I>, <I>AUTHPRIV</I>,
+          <I>CRON</I>, <I>DAEMON</I>, <I>FTP</I>, <I>KERN</I>, <I>LPR</I>, <I>MAIL</I>, <I>NEWS</I>, <I>USER</I>, <I>UUCP</I>, and <I>LOCAL0</I>
+          through <I>LOCAL7</I>.  The default is equivalent to
+                <B>-L</B> <I>info,MAIL.NOTICE</I> <B>-L</B> <I>error,MAIL.ERR</I>
+
+     <B>dccsight</B> exits 0 on success, and &gt;0 if an error occurs.
+
+
+</PRE>
+<H2><A NAME="FILES">FILES</A></H2><PRE>
+     <A NAME="FILE-@prefix@">@prefix@</A>   DCC home directory.
+     <A NAME="FILE-map">map</A>        memory mapped file in the DCC home directory of information
+                concerning DCC servers.
+     <A NAME="FILE-whiteclnt">whiteclnt</A>  contains the client whitelist in the format described in
+                <B><A HREF="dcc.html">dcc(8)</A></B>.
+     <A NAME="FILE-whiteclnt.dccw">whiteclnt.dccw</A>
+                memory mapped hash table of the <I>@prefix@/whiteclnt</I> file.
+
+
+</PRE>
+<H2><A NAME="SEE-ALSO">SEE ALSO</A></H2><PRE>
+     <B><A HREF="cdcc.html">cdcc(8)</A></B>, <B><A HREF="dcc.html">dcc(8)</A></B>, <B><A HREF="dbclean.html">dbclean(8)</A></B>, <B><A HREF="dccd.html">dccd(8)</A></B>, <B><A HREF="dblist.html">dblist(8)</A></B>, <B><A HREF="dccproc.html">dccproc(8)</A></B>, <B><A HREF="dccm.html">dccm(8)</A></B>,
+     <B><A HREF="dccifd.html">dccifd(8)</A></B>, <B>mail(1)</B>, <B>procmail(1)</B>.
+
+
+</PRE>
+<H2><A NAME="HISTORY">HISTORY</A></H2><PRE>
+     Implementation of <B>dccsight</B> was started at <A HREF="http://www.rhyolite.com/">Rhyolite Software</A> in 2000.
+     This document describes version 1.3.154.
+
+                               December 03, 2013
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+modified for the DCC $Date 2001/04/29 03:22:18 $
+<BR>
+<A HREF="http://www.dcc-servers.net/dcc/">
+    <IMG SRC="http://logos.dcc-servers.net/border.png"
+            class=logo ALT="DCC logo">
+    </A>
+<A HREF="http://validator.w3.org/check?uri=referer" rel=nofollow>
+    <IMG class=logo ALT="Valid HTML 4.01 Strict"
+        SRC="http://www.w3.org/Icons/valid-html401">
+    </A>
+</ADDRESS>
+</BODY>
+</HTML>

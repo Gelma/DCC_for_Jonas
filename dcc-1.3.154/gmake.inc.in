@@ -1,0 +1,142 @@
+# help make the Distributed Checksum Clearinghouse on Linux
+#	without a common library of rules
+
+# Copyright (c) 2012 by Rhyolite Software, LLC
+#
+# This agreement is not applicable to any entity which sells anti-spam
+# solutions to others or provides an anti-spam solution as part of a
+# security solution sold to other entities, or to a private network
+# which employs the DCC or uses data provided by operation of the DCC
+# but does not provide corresponding data to other users.
+#
+# Permission to use, copy, modify, and distribute this software without
+# changes for any purpose with or without fee is hereby granted, provided
+# that the above copyright notice and this permission notice appear in all
+# copies and any distributed versions or copies are either unchanged
+# or not called anything similar to "DCC" or "Distributed Checksum
+# Clearinghouse".
+#
+# Parties not eligible to receive a license under this agreement can
+# obtain a commercial license to use DCC by contacting Rhyolite Software
+# at sales@rhyolite.com.
+#
+# A commercial license would be for Distributed Checksum and Reputation
+# Clearinghouse software.  That software includes additional features.  This
+# free license for Distributed ChecksumClearinghouse Software does not in any
+# way grant permision to use Distributed Checksum and Reputation Clearinghouse
+# software
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND RHYOLITE SOFTWARE, LLC DISCLAIMS ALL
+# WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL RHYOLITE SOFTWARE, LLC
+# BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
+# OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+# WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+# ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+
+# Rhyolite Software DCC 1.3.154-1.47 $Revision$
+# @configure_input@
+
+GMAKE_QUIET=--no-print-directory
+
+ifdef SUBDIR
+ifeq (,$(findstring k,$(MAKEFLAGS)))
+SUBK	=set -e;
+endif
+all install:
+	@$(SUBK) $(foreach DIR,$(SUBDIR),echo "==> $(DIR)"; \
+	    $(MAKE) $(GMAKE_QUIET) -C $(DIR) $@;)
+clean cleandir:
+	@$(SUBK) $(foreach DIR,$(SUBDIR) $(SUBDIR_OPT),echo "==> $(DIR)"; \
+	    $(MAKE) $(GMAKE_QUIET) -C $(DIR) $@;)
+endif
+
+include $(DEPTH)/Makefile.inc
+
+OBJS	=$(SRCS:.c=.o)
+
+ifdef LIB
+all:	lib$(LIB).a
+
+lib$(LIB).a:$(OBJS)
+	@rm -f lib${LIB}.a
+	$(AR) qcs lib$(LIB).a $(OBJS)
+	@GMAKE_RANLIB@ lib$(LIB).a
+
+CLEANFILES+=lib$(LIB).a
+endif
+
+
+ifdef PROG
+all:   $(PROG)
+
+$(PROG):$(OBJS)
+	$(CC) $(LDFLAGS) $(OBJS) ${LDADD} -o $@
+
+$(PROG):$(DPADD)
+endif
+
+# do not let clean be the default target
+all:
+
+CLEANFILES+=$(OBJS) $(SRCS:.c=.d)
+ifdef PROG
+CLEANFILES+=$(PROG)
+endif
+
+clean cleandir:locclean
+locclean:
+ifeq "$(CLEANFILES)" " "
+	@:
+else
+	rm -f $(CLEANFILES)
+endif
+
+install:beforeinstall locinstall
+locinstall:maninstall proginstall
+
+proginstall:beforeinstall
+ifdef PROG
+	$(BININSTALL) $(PROG) $(BINDIR)
+endif
+
+# gmake with gcc or IRIX compilers do not need the depend target
+depend:
+	@:
+
+# Don't get excited about missing header files named in old .d files
+#   Genuinely needed header files that have disappeared will break compiles.
+%.h:
+	@:
+
+%.d:	%.c
+	@$(CC) -M $(CFLAGS) $< \
+	    | sed "s!^\([^ :]\{1,\}\)[ :]\{1,\}!\1 $@: !g" > $@
+
+# include the .d file if we have any C source and we are not deleting things
+@HAVE_CC_M@
+ifndef SRCS
+HAVE_CC_M=no
+endif
+ifeq ($(MAKECMDGOALS),cleandir)
+HAVE_CC_M=no
+endif
+ifeq ($(MAKECMDGOALS),clean)
+HAVE_CC_M=no
+endif
+ifeq ($(MAKECMDGOALS),deinstall)
+HAVE_CC_M=no
+endif
+ifeq ($(HAVE_CC_M),yes)
+-include $(SRCS:.c=.d)
+endif
+
+# Try to rebuild the .0 man pages from the shipped .8 files on systems
+# with gmake and groff so that they will have local directory names
+@USE_GROFF@
+ifeq ($(USE_GROFF),yes)
+.SUFFIXES:.0 .8 .html
+.8.0::
+	groff -Tascii -mtty-char -mdoc $*.8 > $@
+endif
