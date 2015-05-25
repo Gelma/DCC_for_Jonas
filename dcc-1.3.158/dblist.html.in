@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+    <TITLE>dblist.8</TITLE>
+    <META HTTP-EQUIV="Content-Style-Type" content="text/css">
+    <META NAME="viewport" content="width=device-width, initial-scale=1">
+    <STYLE type="text/css">
+	BODY {background-color:white; color:black}
+	ADDRESS {font-size:smaller}
+        IMG.logo {width:6em; vertical-align:middle}
+	@media screen and (max-width: 480px) {
+	    IMG.mhide{display:none;visibility:hidden}
+	}
+    </STYLE>
+</HEAD>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+<B><A HREF="dblist.html">dblist(8)</A></B>             Distributed Checksum Clearinghouse             <B><A HREF="dblist.html">dblist(8)</A></B>
+
+
+</PRE>
+<H2><A NAME="NAME">NAME</A></H2><PRE>
+     <B>dblist</B> -- Database List Distributed Checksum Clearinghouse
+
+
+</PRE>
+<H2><A NAME="SYNOPSIS">SYNOPSIS</A></H2><PRE>
+     <B>dblist</B> [<B>-vVHD</B>] [<B>-G</B> <I>on</I> | <I>off</I>] [<B>-h</B> <I>homedir</I>]
+            [<B>-s</B> [<I>server-ID</I>][<I>,server-addr</I>][<I>,server-port</I>]]
+            [<B>-C</B> <I>'type</I> <I>h1</I> <I>h2</I> <I>h3</I> <I>h4'</I>] [<B>-I</B> <I>server-ID</I>] [<B>-A</B> <I>dbaddr</I>] [<B>-L</B> <I>pathlen</I>]
+            [<B>-P</B> <I>pages</I>] [<B>-T</B> <I>timestamp</I>] [<I>file1</I> <I>file2</I> <I>...</I>]
+
+
+</PRE>
+<H2><A NAME="DESCRIPTION">DESCRIPTION</A></H2><PRE>
+     <B>Dblist</B> lists the contents of a DCC database as it does some consistency
+     checking.
+
+     <A NAME="OPTION-v"><B>-v</B></A>   lists more of the database.  Additional information is produced with
+          additional <B>-v</B> arguments.
+
+     <A NAME="OPTION-V"><B>-V</B></A>   displays the version of the DCC database lister.  Two or more <B>-V</B>
+          options show the options with which it was built.
+
+     <A NAME="OPTION-H"><B>-H</B></A>   turns off the listing of the hash table as well as the analysis of
+          the hash table.  Determining the worst case and average lengths of
+          chains in the hash table can take a long time for a large database
+          on a small computer.
+
+     <A NAME="OPTION-D"><B>-D</B></A>   turns off the listing of the data or checksum records.
+
+     <A NAME="OPTION-G"><B>-G</B></A> <I>on</I>
+          lists a greylist database.
+
+     <A NAME="OPTION-h"><B>-h</B></A> <I>homedir</I>
+          overrides the default DCC home directory, <I>@prefix@</I>.
+
+     <A NAME="OPTION-s"><B>-s</B></A> [<I>server-ID</I>][<I>,server-addr</I>][<I>,server-port</I>]
+          somewhat quiets the DCC server process, <B><A HREF="dccd.html">dccd(8)</A></B>, to get somewhat
+          more consistent results.  <I>server-ID</I> must be in the <I>@prefix@/ids</I>
+          file.  <I>server-addr</I> and <I>server-port</I> are the IP address and UDP port
+          at which the server process listens.
+
+     <A NAME="OPTION-C"><B>-C</B></A> <I>'type</I> <I>h1</I> <I>h2</I> <I>h3</I> <I>h4'</I>
+          limits the listing to records containing that checksum or one of the
+          other checksums specified with <B>-C</B>.  If the four hexadecimal values
+          <I>h1</I> <I>h2</I> <I>h3</I> <I>h4</I> are absent, records with the matching <I>type</I> will be
+          listed.  If <I>type</I> is absent, any checksum with the four hexadecimal
+          values will be listed.  If the hexadecimal values <I>h1</I> <I>h2</I> <I>h3</I> <I>h4</I> are
+          absent, all checksums of the specified type will be listed.
+
+          The alternate form
+          <I>'server-ID</I> <I>{simple|commercial|ignore|rogue}</I> <I>at</I> <I>ID'</I> can be used to
+          select <I>server-ID</I> records of some types.
+
+          As many as 16 checksums can be specified.
+
+     <A NAME="OPTION-I"><B>-I</B></A> <I>server-ID</I>
+          limits the listing to records with that server-ID or one of the
+          other server-IDs specified with <B>-I</B>.  As many as 16 server-IDs can be
+          specified.
+
+     <A NAME="OPTION-A"><B>-A</B></A> <I>dbaddr</I>
+          excludes database records before <I>dbaddr</I>.
+
+     <A NAME="OPTION-L"><B>-L</B></A> <I>pathlen</I>
+          excludes records with path lengths shorter than <I>pathlen</I>.
+
+     <A NAME="OPTION-P"><B>-P</B></A> <I>pages</I>
+          ignores all but the last <I>pages</I> of the database.
+
+     <A NAME="OPTION-T"><B>-T</B></A> <I>timetamp</I>
+          excludes records with other timestamps.  A timestamp with a missing
+          microsecond value matches any record with that second.  As many as
+          16 timestamps can be specified.
+
+     <I>file1</I> <I>file2</I> <I>...</I>
+          are names of databases to be listed.  The default is <I>@prefix@/dcc</I><B>_</B><I>db</I>
+          and its companion, <I>@prefix@/dcc</I><B>_</B><I>db.hash</I>.  When <B>-G</B> <I>on</I> is used, the
+          default files are <I>@prefix@/grey</I><B>_</B><I>db</I> and <I>@prefix@/grey</I><B>_</B><I>db.hash</I>.
+
+     By default, the sizes of the main file and the hash table as well as how
+     much they contain and values related to the performance of the hash are
+     displayed.
+
+     With a single <B>-v</B>, most of the mail database file and the contents of mem-
+     ory mapped server flooding positions in the <I>@prefix@/flod.map</I> file  are
+     listed.  The listing starts with the serial number of the database file
+     which is when old entries were last removed from it by <B><A HREF="dbclean.html">dbclean(8)</A></B> That is
+     followed by similar lines showing the oldest timestamp of checksums not
+     expired by dbclean and of mail that is not "spam."
+
+     The flooding positions from the <I>@prefix@/flod.map</I> file are record offsets
+     or addresses in the main database file.
+
+     A typical record in the main database file looks like:
+
+       02/07/02 20:25:12.497032    5         1601              2fe5b94
+            path: 103&lt;-101&lt;-1601
+         Body      6       e2d3f96a c65aea01 3fece361 edff9ecf  2f21364 772d2
+         Fuz1      many    6ff56fe8 ffc312d7 a5fe8f13 12a537ae  2f21364 200a9
+         Fuz2      many    fac882b8 03eea34f bd792c40 2fe6fd54  2f21364 72816
+
+     That example was received by a DCC server with server-ID <I>1601</I> at about
+     8:25 UTC on the evening of February 7, 2000.  The report was about a mail
+     message set to <I>5</I> addressees.  The report was then sent or `flooded' to
+     the server with server-ID <I>101</I> which in turn sent it to a server with
+     server-ID <I>103</I>.  That server sent it to the local DCC server.  The record
+     is at the address <I>0x2fe5b94</I> in the database.  The record contains 3
+     checksums.  The simple checksum of the body of the message was <I>0xe2d3f96a</I>
+     <I>0xc65aea01</I> <I>0x3fece361</I> <I>0xedff9ecf</I> The total number of recipients of mes-
+     sages with this body checksum known in the database is <I>6</I>, which implies
+     this checksum had been previously reported with a target count of 1.  The
+     previous report in the database of a message with this body checksum is
+     at <I>0x2f21364</I>.  The hash table chain for this body checksum is computed to
+     start at <I>0x772d2</I>.  This report included two fuzzy checksums.  Both have
+     been previously reported as having been sent to <I>many</I> targets.
+
+     An asterisk (*) before the type of the checksum indicates that this
+     checksum is redundant.  A report of <I>many</I> addressees makes all preceding
+     reports redundant.
+
+     The flooding of some database records is delayed, as shown by the string
+     <I>delayed</I> after the server-ID.
+
+     The string <I>trimmed</I> after the server-ID marks older reports that have had
+     uninteresting checksums removed.  The string <I>compressed</I> after the server-
+     ID would indicate that this older report has been trimmed and compressed
+     with older reports.
+
+     With two <B>-v</B> arguments, records added to the database by <B><A HREF="dbclean.html">dbclean(8)</A></B> from
+     the server whitelist are also displayed.
+
+     Three <B>-v</B> arguments cause the hash table to be displayed.  Three typical
+     hash table entries look like:
+
+             19b8:   19ee   19b7
+             19b9:   19c0      0    90120 Fuz1
+             19ba:      0      0  1b72300 Fuz1
+
+     The entry in slot number <I>0x19b8</I> is unused or free.  Slot number <I>0x19b9</I> is
+     the start of a chain of collisions or entries with the same hash value of
+     0x19b9.  The next slot in this chain is at <I>0x19c0</I>.  The corresponding
+     <I>Fuz1</I>
+      checksum is at <I>0x9012</I> in the database.  The third slot at <I>0x19ba</I> is also
+     that of a <I>Fuz1</I> checksum, but it is not part of a hash chain and its data-
+     base record is at <I>0x1b72300</I>.
+
+
+</PRE>
+<H2><A NAME="FILES">FILES</A></H2><PRE>
+     <A NAME="FILE-@prefix@">@prefix@</A>     is the DCC home directory containing data and control files.
+     <A NAME="FILE-dcc_db">dcc_db</A>       main file of DCC checksums.
+     <A NAME="FILE-grey_dcc_db">grey_dcc_db</A>  main file of checksums used for greylisting.
+     <A NAME="FILE-dcc_db.hash">dcc_db.hash</A>  database hash table for <I>@prefix@/dcc</I><B>_</B><I>db</I>.
+     <A NAME="FILE-grey_dcc_db.hash">grey_dcc_db.hash</A>
+                  database hash table for <I>@prefix@/grey</I><B>_</B><I>dcc</I>.
+     <A NAME="FILE-flod.map">flod.map</A>
+     <A NAME="FILE-grey_flod.map">grey_flod.map</A>
+                  memory mapped flooding positions.
+
+
+</PRE>
+<H2><A NAME="SEE-ALSO">SEE ALSO</A></H2><PRE>
+     <B><A HREF="cdcc.html">cdcc(8)</A></B>, <B><A HREF="dcc.html">dcc(8)</A></B>, <B><A HREF="dbclean.html">dbclean(8)</A></B>, <B><A HREF="dccd.html">dccd(8)</A></B>, <B><A HREF="dccifd.html">dccifd(8)</A></B>, <B><A HREF="dccm.html">dccm(8)</A></B>, <B><A HREF="dccproc.html">dccproc(8)</A></B>.
+
+
+</PRE>
+<H2><A NAME="HISTORY">HISTORY</A></H2><PRE>
+     Implementation of <B>dblist</B> was started at <A HREF="http://www.rhyolite.com/">Rhyolite Software</A>, in 2000.  This
+     document describes version 1.3.158.
+
+                                April 03, 2015
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with man2htmlmodified for DCC
+$Date 2001/04/29 03:22:18 $
+<BR>
+<A HREF="http://www.dcc-servers.net/dcc/">
+    <IMG SRC="http://logos.dcc-servers.net/border.png"
+            class=logo ALT="DCC logo">
+    </A>
+<A HREF="http://validator.w3.org/check?uri=referer" rel=nofollow>
+    <IMG class="logo mhide" ALT="Valid HTML 4.01 Strict"
+        SRC="http://www.w3.org/Icons/valid-html401">
+    </A>
+</ADDRESS>
+</BODY>
+</HTML>
